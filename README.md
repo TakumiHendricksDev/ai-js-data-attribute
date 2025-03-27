@@ -1,6 +1,6 @@
-# Why?
+# What is this?
 
-Umm. No good reason to use this. Have fun with it though :_)
+It umm allows you to add an ai data attribute to html to generate js code on build. Why would you do this? You wouldn't...
 
 # How to use?
 
