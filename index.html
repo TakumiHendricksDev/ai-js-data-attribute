@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Generated Button Actions Demo</title>
+  <style>
+    /* Base Styles */
+    body {
+      background: #f0f0f0;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    h1 {
+      color: #333;
+      font-size: 2.5rem;
+    }
+    p {
+      color: #555;
+      font-size: 1.2rem;
+    }
+    /* Button Styles */
+    .button-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    button {
+      background-color: #6200ee;
+      color: #fff;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #4500b5;
+    }
+    /* Message container */
+    #messageContainer {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      width: 80%;
+      max-width: 600px;
+      text-align: center;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>AI Generated Button Actions Demo</h1>
+    <p>Click the buttons below to see AI-generated event listeners in action.</p>
+  </header>
+  <div class="button-container">
+    <!-- Each button has an "ai" attribute with a simple instruction for the generator -->
+    <button ai="Alert: Show a friendly greeting message." id="greetBtn">
+      Greet Me
+    </button>
+    <button ai="Message: Append a custom message to the page when clicked." id="msgBtn">
+      Show Message
+    </button>
+  </div>
+  <div id="messageContainer"></div>
+  
+  <!-- The generated JavaScript will be imported here -->
+  <script type="module" src="src/ai-generated.js"></script>
+</body>
+</html>
