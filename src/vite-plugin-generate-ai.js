@@ -3,9 +3,21 @@ import fs from 'fs';
 import path from 'path';
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
+import { ESLint } from 'eslint';
 import { JSDOM } from 'jsdom'; // If needed for DOM parsing
 
 dotenv.config();
+
+async function lintJavaScript(codeSnippet) {
+  const eslint = new ESLint();
+  const results = await eslint.lintText(codeSnippet);
+
+  if (results[0].errorCount > 0) {
+    console.error('❌ Linting errors found in generated code:', results[0].messages);
+    return false;
+  }
+  return true;
+}
 
 // Function to extract pure JavaScript code
 function extractPureJavaScript(responseText) {
@@ -60,6 +72,12 @@ async function generateAIJavaScript() {
       const rawResponseText = response.choices[0].message.content;
 
       const codeSnippet = extractPureJavaScript(rawResponseText);
+
+      const lintSuccess = lintJavaScript(codeSnippet);
+
+      if (!lintSuccess) {
+        continue
+      } 
 
       if (codeSnippet) {
         outputJS += `\n${codeSnippet}\n`;

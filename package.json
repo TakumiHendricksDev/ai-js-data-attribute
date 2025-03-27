@@ -13,6 +13,7 @@
   "description": "",
   "dependencies": {
     "dotenv": "^16.4.7",
+    "eslint": "^9.23.0",
     "jsdom": "^26.0.0",
     "openai": "^4.89.1",
     "vite": "^6.2.3"
