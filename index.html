@@ -60,6 +60,29 @@
       text-align: center;
       color: #333;
     }
+    /* Text Input Styles */
+    #text-input {
+      width: 80%;
+      max-width: 600px;
+      padding: 0.8rem 1rem;
+      font-size: 1rem;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    #text-input:focus {
+      border-color: #6200ee;
+      box-shadow: 0 0 8px rgba(98, 0, 238, 0.3);
+    }
+
+    #text-input::placeholder {
+      color: #aaa;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
@@ -67,17 +90,19 @@
     <h1>AI Generated Button Actions Demo</h1>
     <p>Click the buttons below to see AI-generated event listeners in action.</p>
   </header>
+  <input type="text" id="text-input">
   <div class="button-container">
     <!-- Each button has an "ai" attribute with a simple instruction for the generator -->
     <button ai="Alert: Show a friendly greeting message." id="greetBtn">
       Greet Me
     </button>
-    <button ai="Message: Append a custom message to the page when clicked." id="msgBtn">
+    <button ai="Message: Append the message in the input element with the id text-input in a p tag to the messageContainer id when clicked." id="msgBtn">
       Show Message
     </button>
-    <button id="change-background-color" ai="When pressed change the background color of any class with change-color to red">Change color</button>
+    <button id="change-background-color" ai="When pressed change the background color of any class with change-color to a random color">Change color</button>
   </div>
-  <div id="messageContainer" class="change-color"></div>
+  
+  <div id="messageContainer" class="change-color" ai="hide this container until there is something inside it"></div>
   
   <!-- The generated JavaScript will be imported here -->
   <script type="module" src="src/ai-generated.js"></script>

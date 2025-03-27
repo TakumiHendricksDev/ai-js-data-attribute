@@ -42,11 +42,12 @@ async function generateAIJavaScript() {
     el.setAttribute('id', buttonId);
 
     // Construct the prompt
-    const prompt = `Generate a JavaScript event listener for a button.
-Instruction: ${instruction}
-Button ID: ${buttonId}
+    const prompt = `Generate Javascript based on the given Instruction and id of the element
+      Instruction: ${instruction}
+      Button ID: ${buttonId}
 
-Respond ONLY with the JavaScript code snippet. No explanations, no markdown.`;
+      Respond ONLY with the JavaScript code snippet. No explanations, no markdown.`
+    ;
 
     try {
       const response = await openai.chat.completions.create({
@@ -58,7 +59,6 @@ Respond ONLY with the JavaScript code snippet. No explanations, no markdown.`;
 
       const rawResponseText = response.choices[0].message.content;
 
-      console.log('Generated raw response:', rawResponseText);
       const codeSnippet = extractPureJavaScript(rawResponseText);
 
       if (codeSnippet) {
