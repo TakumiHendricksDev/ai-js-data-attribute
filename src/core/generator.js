@@ -13,7 +13,7 @@ import { extractJavaScript } from '../utils/extractor.js';
  * @returns {Promise<string|null>} - Generated code or null on error
  */
 export async function generateCode(element, instruction, config) {
-  const prompt = buildPrompt(element, instruction);
+  const prompt = buildPrompt(element, instruction, config);
 
   // Call onBeforeGenerate callback
   if (config.onBeforeGenerate && typeof config.onBeforeGenerate === 'function') {

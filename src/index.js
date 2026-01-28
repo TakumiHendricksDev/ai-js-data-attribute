@@ -43,6 +43,9 @@ const defaultConfig = {
   batchProcessing: true, // Process elements in parallel
   batchConcurrency: 5, // Number of concurrent API calls
 
+  // Context
+  includeHtmlContext: true, // Include surrounding HTML in prompts for better AI understanding
+
   // Caching
   cache: true,
   cachePrefix: 'ai-attr-',
@@ -378,7 +381,7 @@ const AiAttr = {
   clearCache,
   stop,
   getConfig,
-  version: '1.2.0'
+  version: '1.3.0'
 };
 
 // Expose globally for IIFE/UMD builds

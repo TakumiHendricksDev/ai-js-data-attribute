@@ -70,9 +70,14 @@ AiAttr.init({
   observeChanges: true,          // Watch for dynamically added elements
 
   // AI Settings
-  model: 'gpt-4-turbo',          // The model writing your code 😬
-  maxTokens: 150,                // Keep it short, keep it scary
+  model: 'gpt-4o',               // The model writing your code 😬 (or 'auto')
+  maxTokens: 300,                // Token limit for generated code
   temperature: 0.2,              // Low temp = more predictable chaos
+
+  // Performance (v1.3.0+)
+  batchProcessing: true,         // Process elements in parallel (faster!)
+  batchConcurrency: 5,           // Number of concurrent API calls
+  includeHtmlContext: true,      // Send surrounding HTML for smarter code
 
   // Caching
   cache: true,                   // Cache mistakes for later
@@ -89,6 +94,52 @@ AiAttr.init({
   onGenerated: (el, code) => {},  // Peek at your AI-generated destiny
   onError: (el, error) => {},     // The "I told you so" callback
   onComplete: () => {}            // Celebrate surviving
+});
+```
+
+## ⚡ Performance Features (v1.3.0+)
+
+### Batch Processing
+
+By default, elements are processed in parallel for faster initialization:
+
+```javascript
+AiAttr.init({
+  batchProcessing: true,   // Enable parallel processing (default: true)
+  batchConcurrency: 5,     // Process 5 elements at once (default: 5)
+});
+```
+
+With 20 elements on your page, this is ~5x faster than sequential processing. Your API bill arrives 5x faster too! 💸
+
+### HTML Context
+
+The AI now receives surrounding HTML structure, so it understands element relationships:
+
+```html
+<div class="demo-card">
+  <button ai="Toggle visibility of the sibling div">Toggle</button>
+  <div id="content">Hidden content</div>
+</div>
+```
+
+The AI sees the sibling `#content` div and generates correct code. Disable if you want smaller prompts:
+
+```javascript
+AiAttr.init({
+  includeHtmlContext: false,  // Disable HTML context (smaller prompts, dumber AI)
+});
+```
+
+### Model Selection
+
+```javascript
+AiAttr.init({
+  model: 'gpt-4o',     // Default: fast and capable
+  // OR
+  model: 'auto',       // Auto-select best model (currently picks gpt-4o)
+  // OR
+  model: 'gpt-4-turbo', // If you prefer the OG
 });
 ```
 
@@ -132,9 +183,9 @@ export default async function handler(request) {
       'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: model || 'gpt-4-turbo',
+      model: model || 'gpt-4o',
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: maxTokens || 150,
+      max_tokens: maxTokens || 300,
       temperature: temperature || 0.2,
     }),
   });
