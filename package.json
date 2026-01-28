@@ -1,6 +1,6 @@
 {
   "name": "ai-js-attr",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Add AI-generated JavaScript to HTML elements via ai=\"\" attributes. No build step required - just include the script and go.",
   "main": "dist/ai-attr.umd.js",
   "module": "dist/ai-attr.es.js",
