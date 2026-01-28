@@ -18,7 +18,7 @@
  */
 
 import { scanElements, markProcessed, isProcessed } from './core/scanner.js';
-import { generateCode } from './core/generator.js';
+import { generateCode, generateCodeBatch } from './core/generator.js';
 import { executeCode, validateCode } from './core/executor.js';
 import { generateCacheKey, getCache, setCache, clearCache as clearCacheStorage } from './core/cache.js';
 import { startObserver, stopObserver } from './core/observer.js';
@@ -35,9 +35,13 @@ const defaultConfig = {
   observeChanges: true,
 
   // AI Settings
-  model: 'gpt-4-turbo',
-  maxTokens: 150,
+  model: 'gpt-4o', // Use gpt-4o for better speed/quality balance (or 'auto' for auto-select)
+  maxTokens: 300,
   temperature: 0.2,
+
+  // Batch Processing
+  batchProcessing: true, // Process elements in parallel
+  batchConcurrency: 5, // Number of concurrent API calls
 
   // Caching
   cache: true,
@@ -152,14 +156,133 @@ async function scan(root = document) {
 
   let processed = 0;
 
-  for (const { element, instruction } of elements) {
-    const success = await processElement(element);
-    if (success) processed++;
+  if (config.batchProcessing && elements.length > 1) {
+    // Batch processing: parallel execution for speed
+    processed = await processBatch(elements);
+  } else {
+    // Sequential processing (legacy mode)
+    for (const { element, instruction } of elements) {
+      const success = await processElement(element);
+      if (success) processed++;
+    }
   }
 
   // Call onComplete callback
   if (config.onComplete && typeof config.onComplete === 'function') {
     config.onComplete();
+  }
+
+  return processed;
+}
+
+/**
+ * Process multiple elements in parallel batches
+ * @param {Array<{element: HTMLElement, instruction: string}>} elements - Elements to process
+ * @returns {Promise<number>} - Number successfully processed
+ */
+async function processBatch(elements) {
+  const concurrency = config.batchConcurrency || 5;
+  let processed = 0;
+
+  // Prepare items: filter already processed and ensure IDs
+  const itemsToProcess = [];
+  const cachedItems = [];
+
+  for (const { element, instruction } of elements) {
+    if (isProcessed(element)) continue;
+
+    // Ensure element has an ID
+    if (!element.id) {
+      element.id = `ai-attr-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    // Check cache first
+    const cacheKey = generateCacheKey(element, instruction);
+    const cachedCode = getCache(cacheKey, config);
+
+    if (cachedCode) {
+      cachedItems.push({ element, instruction, code: cachedCode, cacheKey });
+    } else {
+      itemsToProcess.push({ element, instruction, cacheKey });
+    }
+  }
+
+  // Process cached items immediately (no API call needed)
+  for (const { element, code } of cachedItems) {
+    console.log(`[AiAttr] Using cached code for #${element.id}`);
+    const { valid, error } = validateCode(code);
+    if (valid) {
+      const success = executeCode(code, element, config);
+      if (success) {
+        markProcessed(element);
+        processed++;
+      }
+    } else {
+      console.error(`[AiAttr] Invalid cached code for #${element.id}:`, error);
+    }
+  }
+
+  // Process items needing generation in parallel batches
+  if (itemsToProcess.length > 0) {
+    console.log(`[AiAttr] Generating code for ${itemsToProcess.length} elements (batch concurrency: ${concurrency})`);
+
+    // Add loading class to all items
+    if (config.showLoading) {
+      itemsToProcess.forEach(({ element }) => element.classList.add(config.loadingClass));
+    }
+
+    // Process in parallel batches
+    for (let i = 0; i < itemsToProcess.length; i += concurrency) {
+      const batch = itemsToProcess.slice(i, i + concurrency);
+
+      const promises = batch.map(async ({ element, instruction, cacheKey }) => {
+        try {
+          // Call onBeforeGenerate
+          if (config.onBeforeGenerate && typeof config.onBeforeGenerate === 'function') {
+            config.onBeforeGenerate(element, instruction);
+          }
+
+          console.log(`[AiAttr] Generating code for #${element.id}: "${instruction}"`);
+          const code = await generateCode(element, instruction, config);
+
+          if (code) {
+            const { valid, error } = validateCode(code);
+            if (!valid) {
+              console.error(`[AiAttr] Invalid code generated for #${element.id}:`, error);
+              throw error;
+            }
+
+            // Cache the valid code
+            setCache(cacheKey, code, config);
+
+            // Execute
+            const success = executeCode(code, element, config);
+            if (success) {
+              markProcessed(element);
+              console.log(`[AiAttr] Successfully processed #${element.id}`);
+              return true;
+            }
+          }
+          return false;
+        } catch (error) {
+          console.error(`[AiAttr] Error processing #${element.id}:`, error);
+          if (config.onError && typeof config.onError === 'function') {
+            config.onError(element, error);
+          }
+          if (config.showLoading) {
+            element.classList.add(config.errorClass);
+          }
+          return false;
+        } finally {
+          if (config.showLoading) {
+            element.classList.remove(config.loadingClass);
+          }
+        }
+      });
+
+      const results = await Promise.all(promises);
+      processed += results.filter(Boolean).length;
+    }
   }
 
   return processed;
@@ -255,7 +378,7 @@ const AiAttr = {
   clearCache,
   stop,
   getConfig,
-  version: '1.1.0'
+  version: '1.2.0'
 };
 
 // Expose globally for IIFE/UMD builds

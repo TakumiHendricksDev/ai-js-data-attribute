@@ -16,14 +16,17 @@ export function extractJavaScript(responseText) {
   let cleanedText = responseText;
 
   // Remove markdown code blocks (```javascript, ```js, or just ```)
-  // Handle opening code fence
-  cleanedText = cleanedText.replace(/^[\s\S]*?```(?:javascript|js)?\n?/i, '');
+  // Only remove triple backtick fences, NOT single backticks used in template literals
 
-  // Handle closing code fence
-  cleanedText = cleanedText.replace(/\n?```[\s\S]*$/i, '');
+  // Handle code blocks with language identifier
+  cleanedText = cleanedText.replace(/^[\s\S]*?```(?:javascript|js)\s*\n/i, '');
+  cleanedText = cleanedText.replace(/\n```\s*$/i, '');
 
-  // Remove any remaining backticks
-  cleanedText = cleanedText.replace(/`/g, '');
+  // Handle code blocks without language identifier (but only at start/end)
+  cleanedText = cleanedText.replace(/^```\s*\n/, '');
+  cleanedText = cleanedText.replace(/\n```\s*$/, '');
+
+  // DO NOT remove single backticks - they are used for template literals in JavaScript!
 
   // Remove leading/trailing whitespace
   cleanedText = cleanedText.trim();

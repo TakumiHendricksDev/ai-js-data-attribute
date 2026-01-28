@@ -29,6 +29,8 @@ Requirements:
 4. Use modern JavaScript (ES6+).
 5. Add event listeners where appropriate for interactive elements.
 6. Keep the code minimal and focused on the instruction.
+7. IMPORTANT: For string interpolation, use proper template literal syntax with backticks: \`Hello \${name}\`
+8. Do NOT use markdown code fences (\`\`\`). Output raw JavaScript only.
 
 Respond ONLY with the JavaScript code. No markdown code blocks, no explanations.`;
 }
