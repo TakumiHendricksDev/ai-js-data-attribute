@@ -1,26 +1,52 @@
 {
-  "name": "ai-js-data-attribute",
+  "name": "ai-js-attr",
   "version": "1.0.0",
-  "main": "ai-compiler.js",
+  "description": "Add AI-generated JavaScript to HTML elements via ai=\"\" attributes. No build step required - just include the script and go.",
+  "main": "dist/ai-attr.umd.js",
+  "module": "dist/ai-attr.es.js",
+  "types": "src/types.d.ts",
+  "unpkg": "dist/ai-attr.min.js",
+  "jsdelivr": "dist/ai-attr.min.js",
+  "exports": {
+    ".": {
+      "browser": "./dist/ai-attr.min.js",
+      "import": "./dist/ai-attr.es.js",
+      "require": "./dist/ai-attr.umd.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
-  "keywords": [],
+  "keywords": [
+    "ai",
+    "openai",
+    "html",
+    "attributes",
+    "code-generation",
+    "javascript",
+    "gpt",
+    "cdn",
+    "runtime"
+  ],
   "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "dotenv": "^16.4.7",
-    "eslint": "^9.23.0",
-    "jsdom": "^26.0.0",
-    "openai": "^4.89.1",
-    "vite": "^6.2.3"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": ""
   },
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
   "devDependencies": {
-    "@types/node": "^22.13.13",
-    "@vitejs/plugin-react": "^4.3.4",
-    "ts-node": "^10.9.2"
+    "terser": "^5.27.0",
+    "vite": "^6.2.3"
   }
 }

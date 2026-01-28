@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Generated Button Actions Demo</title>
+  <title>AiAttr - AI Generated JavaScript Demo</title>
   <style>
     /* Base Styles */
     body {
@@ -43,10 +43,21 @@
       border-radius: 8px;
       font-size: 1rem;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: background 0.3s, opacity 0.3s;
     }
     button:hover {
       background-color: #4500b5;
+    }
+    /* Loading and error states */
+    .ai-loading {
+      opacity: 0.6;
+      cursor: wait;
+    }
+    .ai-loading::after {
+      content: ' ...';
+    }
+    .ai-error {
+      border: 2px solid #ff4444;
     }
     /* Message container */
     #messageContainer {
@@ -73,38 +84,133 @@
       margin-top: 1rem;
       margin-bottom: 1rem;
     }
-
     #text-input:focus {
       border-color: #6200ee;
       box-shadow: 0 0 8px rgba(98, 0, 238, 0.3);
     }
-
     #text-input::placeholder {
       color: #aaa;
       font-style: italic;
+    }
+    /* Config panel */
+    .config-panel {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #fff;
+      border-radius: 8px;
+      width: 80%;
+      max-width: 600px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .config-panel h3 {
+      margin-top: 0;
+      color: #333;
+    }
+    .config-panel input[type="text"] {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+    .config-panel button {
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+    }
+    .config-panel .warning {
+      color: #ff6600;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+    code {
+      background: #eee;
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.9em;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>AI Generated Button Actions Demo</h1>
-    <p>Click the buttons below to see AI-generated event listeners in action.</p>
+    <h1>AiAttr Demo</h1>
+    <p>Add AI-generated JavaScript to HTML elements via <code>ai=""</code> attributes.</p>
   </header>
-  <input type="text" id="text-input">
+
+  <!-- Configuration Panel -->
+  <div class="config-panel">
+    <h3>Configuration</h3>
+    <p>Enter your OpenAI API key or proxy URL to try the demo:</p>
+    <input type="text" id="apiKeyInput" placeholder="sk-... (API Key) or /api/ai-generate (Proxy URL)" />
+    <button onclick="initAiAttr()">Initialize</button>
+    <button onclick="AiAttr.clearCache()">Clear Cache</button>
+    <p class="warning">Note: Using an API key directly exposes it in the browser. Use a proxy server for production!</p>
+  </div>
+
+  <input type="text" id="text-input" placeholder="Type a message here...">
+
   <div class="button-container">
-    <!-- Each button has an "ai" attribute with a simple instruction for the generator -->
+    <!-- Each button has an "ai" attribute with a simple instruction -->
     <button ai="Alert: Show a friendly greeting message." id="greetBtn">
       Greet Me
     </button>
     <button ai="Message: Append the message in the input element with the id text-input in a p tag to the messageContainer id when clicked." id="msgBtn">
       Show Message
     </button>
-    <button id="change-background-color" ai="When pressed change the background color of any class with change-color to a random color">Change color</button>
+    <button id="change-background-color" ai="When pressed change the background color of any class with change-color to a random color">
+      Change Color
+    </button>
   </div>
-  
-  <div id="messageContainer" class="change-color" ai="hide this container until there is something inside it"></div>
-  
-  <!-- The generated JavaScript will be imported here -->
-  <script type="module" src="src/ai-generated.js"></script>
+
+  <div id="messageContainer" class="change-color" ai="hide this container until there is something inside it">
+    <!-- Messages will appear here -->
+  </div>
+
+  <!-- Include the library (use dist/ai-attr.min.js after building) -->
+  <script type="module">
+    import AiAttr from './src/index.js';
+
+    // Make AiAttr available globally for the demo
+    window.AiAttr = AiAttr;
+
+    // Initialize function called by the button
+    window.initAiAttr = function() {
+      const input = document.getElementById('apiKeyInput').value.trim();
+
+      if (!input) {
+        alert('Please enter an API key or proxy URL');
+        return;
+      }
+
+      const config = {};
+
+      // Detect if it's a URL or API key
+      if (input.startsWith('http') || input.startsWith('/')) {
+        config.proxyUrl = input;
+      } else {
+        config.apiKey = input;
+      }
+
+      // Add callbacks for demo feedback
+      config.onBeforeGenerate = (el, instruction) => {
+        console.log(`Generating for #${el.id}: "${instruction}"`);
+      };
+
+      config.onGenerated = (el, code) => {
+        console.log(`Generated code for #${el.id}:`, code);
+      };
+
+      config.onError = (el, error) => {
+        console.error(`Error for #${el.id}:`, error);
+        alert(`Error generating code: ${error.message}`);
+      };
+
+      config.onComplete = () => {
+        console.log('All elements processed!');
+      };
+
+      AiAttr.init(config);
+    };
+  </script>
 </body>
 </html>
